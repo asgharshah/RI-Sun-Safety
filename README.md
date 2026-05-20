@@ -39,4 +39,4 @@ advice. Consult a licensed clinician for personal medical guidance.
 
 ## License
 
-Released for free public use. 
+MIT License.
