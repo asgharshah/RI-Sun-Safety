@@ -39,5 +39,4 @@ advice. Consult a licensed clinician for personal medical guidance.
 
 ## License
 
-Released for free public use. (Add a formal license such as MIT or CC BY 4.0 if
-you want to set explicit reuse terms.)
+Released for free public use. 
