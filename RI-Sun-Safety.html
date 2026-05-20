@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Rhode Island Sun Safety & Shade Access Resource</title>
+<meta name="description" content="A free tool to help Rhode Islanders understand local UV risk, shade access, and skin cancer prevention.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #F5F0E8;
+    --sand-dark: #EDE6D6;
+    --navy: #1A2744;
+    --navy-mid: #2C3E6B;
+    --coral: #E05A3A;
+    --coral-light: #F5896E;
+    --amber: #D4882A;
+    --teal: #2A7D6B;
+    --text: #1A2744;
+    --text-muted: #5A6480;
+    --white: #FFFFFF;
+    --border: rgba(26,39,68,0.12);
+    --radius: 12px;
+    --radius-lg: 20px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--sand);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    background: var(--navy);
+    padding: 1rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-logo {
+    font-family: 'DM Serif Display', Georgia, serif;
+    color: var(--white);
+    font-size: 1.1rem;
+    letter-spacing: -0.01em;
+  }
+  .nav-logo span { color: var(--coral-light); }
+  .nav-links { display: flex; gap: 1.5rem; }
+  .nav-links a {
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 400;
+    transition: color 0.2s;
+  }
+  .nav-links a:hover { color: white; }
+
+  /* HERO */
+  .hero {
+    background: var(--navy);
+    padding: 5rem 2rem 4rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    background: rgba(224,90,58,0.12);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: -40px;
+    width: 200px; height: 200px;
+    border-radius: 50%;
+    background: rgba(42,125,107,0.1);
+  }
+  .hero-tag {
+    display: inline-block;
+    background: rgba(224,90,58,0.2);
+    color: var(--coral-light);
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.3rem 0.9rem;
+    border-radius: 100px;
+    margin-bottom: 1.5rem;
+    border: 1px solid rgba(224,90,58,0.3);
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 1rem;
+    letter-spacing: -0.02em;
+  }
+  .hero h1 em { color: var(--coral-light); font-style: italic; }
+  .hero p {
+    color: rgba(255,255,255,0.65);
+    font-size: 1.05rem;
+    max-width: 520px;
+    margin: 0 auto 2.5rem;
+    font-weight: 300;
+  }
+  .hero-disclaimer {
+    font-size: 0.72rem;
+    color: rgba(255,255,255,0.35);
+    margin-top: 1rem;
+  }
+
+  /* LOCATION SELECTOR */
+  .location-bar {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: var(--radius-lg);
+    padding: 1.5rem;
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+  .location-bar label {
+    display: block;
+    color: rgba(255,255,255,0.55);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .city-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .city-btn {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: rgba(255,255,255,0.85);
+    padding: 0.45rem 1rem;
+    border-radius: 100px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: inherit;
+  }
+  .city-btn:hover {
+    background: rgba(255,255,255,0.15);
+    border-color: rgba(255,255,255,0.4);
+    color: white;
+  }
+  .city-btn.active {
+    background: var(--coral);
+    border-color: var(--coral);
+    color: white;
+  }
+
+  /* MAIN CONTENT */
+  main { max-width: 900px; margin: 0 auto; padding: 3rem 1.5rem; }
+
+  /* RESULT CARD */
+  .result-card {
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+    animation: fadeUp 0.4s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .result-header {
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+  .result-location { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.25rem; }
+  .result-title { font-family: 'DM Serif Display', Georgia, serif; font-size: 1.6rem; color: var(--navy); }
+  .uv-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+  .uv-badge .uv-num { font-size: 1.8rem; line-height: 1; font-family: 'DM Serif Display', serif; }
+  .uv-badge .uv-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 2px; }
+  .uv-low { background: #E8F5E9; color: #2E7D32; }
+  .uv-moderate { background: #FFF9C4; color: #9E7B00; }
+  .uv-high { background: #FFE0B2; color: #BF5600; }
+  .uv-veryhigh { background: #FFCDD2; color: #C62828; }
+  .uv-extreme { background: #F3E5F5; color: #7B1FA2; }
+
+  .result-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0;
+  }
+  .result-metric {
+    padding: 1.25rem 1.5rem;
+    border-right: 1px solid var(--border);
+  }
+  .result-metric:last-child { border-right: none; }
+  .metric-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 0.4rem; }
+  .metric-value { font-size: 1rem; font-weight: 500; color: var(--navy); }
+  .metric-sub { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+  .result-recommendation {
+    padding: 1.25rem 2rem;
+    background: var(--sand);
+    border-top: 1px solid var(--border);
+  }
+  .rec-title { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.07em; color: var(--text-muted); margin-bottom: 0.6rem; }
+  .rec-steps { display: flex; flex-wrap: wrap; gap: 8px; }
+  .rec-step {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 100px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.82rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .rec-step-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--coral);
+    flex-shrink: 0;
+  }
+
+  .equity-note {
+    padding: 1rem 2rem;
+    background: rgba(42,125,107,0.06);
+    border-top: 1px solid rgba(42,125,107,0.15);
+    font-size: 0.83rem;
+    color: var(--teal);
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* LOADING STATE */
+  .loading-state {
+    padding: 3rem 2rem;
+    text-align: center;
+    color: var(--text-muted);
+  }
+  .spinner {
+    width: 32px; height: 32px;
+    border: 3px solid var(--sand-dark);
+    border-top-color: var(--coral);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1rem;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* SECTION HEADERS */
+  .section-header { margin-bottom: 1.5rem; }
+  .section-tag {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--coral);
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+  }
+  .section-title {
+    font-family: 'DM Serif Display', Georgia, serif;
+    font-size: 1.6rem;
+    color: var(--navy);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  .section-desc { color: var(--text-muted); font-size: 0.9rem; margin-top: 0.5rem; font-weight: 300; }
+
+  /* SHADE TABLE */
+  .shade-table-wrap {
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    overflow: hidden;
+    margin-bottom: 2.5rem;
+  }
+  .shade-table { width: 100%; border-collapse: collapse; }
+  .shade-table th {
+    background: var(--navy);
+    color: rgba(255,255,255,0.7);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 400;
+    padding: 0.8rem 1.25rem;
+    text-align: left;
+  }
+  .shade-table td {
+    padding: 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+  }
+  .shade-table tr:last-child td { border-bottom: none; }
+  .shade-table tr:hover td { background: var(--sand); }
+  .canopy-bar-wrap { display: flex; align-items: center; gap: 10px; }
+  .canopy-bar-bg { flex: 1; height: 6px; background: var(--sand-dark); border-radius: 100px; overflow: hidden; }
+  .canopy-bar-fill { height: 100%; border-radius: 100px; }
+  .canopy-pct { font-size: 0.78rem; color: var(--text-muted); min-width: 30px; }
+  .shade-badge {
+    display: inline-block;
+    padding: 0.2rem 0.65rem;
+    border-radius: 100px;
+    font-size: 0.72rem;
+    font-weight: 500;
+  }
+  .shade-vlow { background: #FFCDD2; color: #C62828; }
+  .shade-low { background: #FFE0B2; color: #BF5600; }
+  .shade-mod { background: #FFF9C4; color: #9E7B00; }
+  .shade-high { background: #E8F5E9; color: #2E7D32; }
+
+  /* MELANOMA SECTION */
+  .county-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin-bottom: 2.5rem;
+  }
+  .county-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem;
+  }
+  .county-name { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+  .county-rate { font-family: 'DM Serif Display', serif; font-size: 1.8rem; color: var(--navy); line-height: 1; }
+  .county-rate-label { font-size: 0.72rem; color: var(--text-muted); margin-top: 4px; }
+  .county-bar { height: 4px; border-radius: 100px; background: var(--sand-dark); margin-top: 12px; overflow: hidden; }
+  .county-bar-fill { height: 100%; border-radius: 100px; background: var(--coral); }
+
+  /* RESOURCES */
+  .resource-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 2.5rem;
+  }
+  .resource-card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.5rem;
+    text-decoration: none;
+    color: inherit;
+    transition: box-shadow 0.2s, border-color 0.2s;
+    display: block;
+  }
+  .resource-card:hover { border-color: var(--coral); box-shadow: 0 4px 20px rgba(224,90,58,0.1); }
+  .resource-icon { font-size: 1.4rem; margin-bottom: 0.6rem; }
+  .resource-title { font-weight: 500; font-size: 0.9rem; color: var(--navy); margin-bottom: 0.3rem; }
+  .resource-desc { font-size: 0.8rem; color: var(--text-muted); font-weight: 300; }
+
+  /* SKIN OF COLOR */
+  .equity-box {
+    background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+    border-radius: var(--radius-lg);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .equity-box::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    background: rgba(224,90,58,0.12);
+  }
+  .equity-box h3 {
+    font-family: 'DM Serif Display', serif;
+    color: white;
+    font-size: 1.3rem;
+    margin-bottom: 0.75rem;
+    position: relative;
+  }
+  .equity-box p { color: rgba(255,255,255,0.7); font-size: 0.88rem; font-weight: 300; line-height: 1.7; position: relative; }
+  .equity-box strong { color: var(--coral-light); font-weight: 500; }
+
+  /* ABCDE */
+  .abcde-grid {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 2.5rem;
+    flex-wrap: wrap;
+  }
+  .abcde-card {
+    flex: 1;
+    min-width: 100px;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.25rem 1rem;
+    text-align: center;
+  }
+  .abcde-letter {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    color: var(--coral);
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .abcde-word { font-weight: 500; font-size: 0.82rem; color: var(--navy); margin-bottom: 0.3rem; }
+  .abcde-desc { font-size: 0.75rem; color: var(--text-muted); font-weight: 300; line-height: 1.4; }
+
+  /* DOWNLOAD */
+  .download-section {
+    background: var(--coral);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    text-align: center;
+    margin-bottom: 2.5rem;
+  }
+  .download-section h3 { font-family: 'DM Serif Display', serif; color: white; font-size: 1.5rem; margin-bottom: 0.5rem; }
+  .download-section p { color: rgba(255,255,255,0.8); font-size: 0.88rem; margin-bottom: 1.5rem; font-weight: 300; }
+  .download-btn {
+    background: white;
+    color: var(--coral);
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 100px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .download-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+
+  /* FOOTER */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.5);
+    text-align: center;
+    padding: 2rem;
+    font-size: 0.78rem;
+    font-weight: 300;
+    line-height: 1.8;
+  }
+  footer strong { color: rgba(255,255,255,0.8); font-weight: 500; }
+  footer a { color: var(--coral-light); text-decoration: none; }
+
+  /* DIVIDER */
+  .divider { border: none; border-top: 1px solid var(--border); margin: 2.5rem 0; }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    nav { padding: 1rem; }
+    .nav-links { display: none; }
+    .result-grid { grid-template-columns: 1fr 1fr; }
+    .result-metric:nth-child(3) { border-right: none; grid-column: 1 / -1; }
+    .resource-grid { grid-template-columns: 1fr; }
+    .result-header { flex-direction: column-reverse; align-items: flex-start; }
+    .equity-box { padding: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">RI <span>Sun Safety</span></div>
+  <div class="nav-links">
+    <a href="#checker">UV Checker</a>
+    <a href="#shade">Shade Access</a>
+    <a href="#melanoma">Melanoma Data</a>
+    <a href="#resources">Resources</a>
+    <a href="#download">Download Guide</a>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-tag">Free Public Health Resource · Rhode Island</div>
+  <h1>Know your <em>sun risk</em><br>in Rhode Island</h1>
+  <p>UV risk, shade access, and skin cancer prevention — translated into practical guidance for Rhode Islanders.</p>
+
+  <div class="location-bar">
+    <label>Select your city or town</label>
+    <div class="city-grid" id="cityGrid">
+      <button class="city-btn" onclick="selectCity('Providence')">Providence</button>
+      <button class="city-btn" onclick="selectCity('Pawtucket')">Pawtucket</button>
+      <button class="city-btn" onclick="selectCity('Central Falls')">Central Falls</button>
+      <button class="city-btn" onclick="selectCity('Cranston')">Cranston</button>
+      <button class="city-btn" onclick="selectCity('Woonsocket')">Woonsocket</button>
+      <button class="city-btn" onclick="selectCity('Warwick')">Warwick</button>
+      <button class="city-btn" onclick="selectCity('East Providence')">East Providence</button>
+      <button class="city-btn" onclick="selectCity('Newport')">Newport</button>
+      <button class="city-btn" onclick="selectCity('Westerly')">Westerly</button>
+      <button class="city-btn" onclick="selectCity('Block Island')">Block Island</button>
+    </div>
+  </div>
+  <p style="font-size:0.8rem; color:rgba(255,255,255,0.45); margin-top:0.75rem;">Don't see your town? Select the nearest listed location for approximate UV and shade guidance.</p>
+  <p class="hero-disclaimer">For educational purposes only. Not a substitute for medical advice.</p>
+</section>
+
+<main>
+
+  <!-- RESULT SECTION -->
+  <section id="checker" style="margin-bottom: 2.5rem;">
+    <div id="resultArea">
+      <div style="background: white; border-radius: var(--radius-lg); border: 1px solid var(--border); padding: 3rem 2rem; text-align: center; color: var(--text-muted);">
+        <div style="font-size: 2rem; margin-bottom: 0.75rem;">☀️</div>
+        <p style="font-size: 0.95rem;">Select a city above to see today's UV risk and shade access.</p>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- SHADE ACCESS TABLE -->
+  <section id="shade" style="margin-bottom: 2.5rem;">
+    <div class="section-header">
+      <div class="section-tag">Environmental Health</div>
+      <div class="section-title">Shade access across Rhode Island</div>
+      <div class="section-desc">Tree canopy coverage is a key determinant of UV burden. Communities with lower canopy face greater heat and UV exposure — a health equity issue. Data from RI DEM and American Forests Tree Equity Score.</div>
+    </div>
+
+    <div class="shade-table-wrap">
+      <table class="shade-table">
+        <thead>
+          <tr>
+            <th>City / Town</th>
+            <th>Tree Canopy</th>
+            <th>Coverage</th>
+            <th>Shade Access</th>
+          </tr>
+        </thead>
+        <tbody id="shadeTableBody"></tbody>
+      </table>
+    </div>
+    <p style="font-size: 0.78rem; color: var(--text-muted); font-style: italic;"><strong>Methodology:</strong> Tree canopy values are approximate shade-access indicators derived from publicly available RI DEM Urban Forestry, RIDOH Natural Environment Data, and American Forests Tree Equity Score resources. Published canopy estimates may vary by source, year, geographic boundary, and methodology. Values should be interpreted as relative indicators of shade access rather than precise real-time shade measurements. County sun exposure profiles below are qualitative public health summaries; for cancer surveillance figures, see NCI State Cancer Profiles in the resources section.</p>
+  </section>
+
+  <hr class="divider">
+
+  <!-- MELANOMA DATA -->
+  <section id="melanoma" style="margin-bottom: 2.5rem;">
+    <div class="section-header">
+      <div class="section-tag">Sun Exposure Context · Rhode Island</div>
+      <div class="section-title">County-level sun exposure context</div>
+      <div class="section-desc">Sun exposure and melanoma risk vary by geography, outdoor activity patterns, and access to shade. The summaries below are qualitative public health guidance intended to complement, not replace, official cancer surveillance data from NCI State Cancer Profiles.</div>
+    </div>
+
+    <div class="county-grid" id="countyGrid"></div>
+
+    <div class="equity-box">
+      <h3>Skin cancer in skin of color</h3>
+      <p>Melanoma can occur in <strong>all skin tones</strong>. In patients with darker skin phototypes, melanoma is more likely to be diagnosed at a later stage and may present in less commonly examined sites — palms, soles, nails, and mucosal surfaces. <strong>Any new, changing, bleeding, or nonhealing lesion warrants evaluation regardless of skin tone.</strong> Dermoscopy has demonstrated utility in differentiating benign from malignant lesions across phototypes and can improve early detection in populations historically underserved by dermatology care.</p>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- KNOW YOUR ABCDES -->
+  <section style="margin-bottom: 2.5rem;">
+    <div class="section-header">
+      <div class="section-tag">Prevention</div>
+      <div class="section-title">Know your ABCDEs</div>
+      <div class="section-desc">When examining your skin, look for these warning signs. See a dermatologist or your primary care provider if any lesion changes or concerns you.</div>
+    </div>
+    <div class="abcde-grid">
+      <div class="abcde-card"><div class="abcde-letter">A</div><div class="abcde-word">Asymmetry</div><div class="abcde-desc">One half does not match the other</div></div>
+      <div class="abcde-card"><div class="abcde-letter">B</div><div class="abcde-word">Border</div><div class="abcde-desc">Irregular, ragged, or blurred edges</div></div>
+      <div class="abcde-card"><div class="abcde-letter">C</div><div class="abcde-word">Color</div><div class="abcde-desc">Multiple shades of brown, black, red, or white</div></div>
+      <div class="abcde-card"><div class="abcde-letter">D</div><div class="abcde-word">Diameter</div><div class="abcde-desc">Larger than a pencil eraser (~6mm)</div></div>
+      <div class="abcde-card"><div class="abcde-letter">E</div><div class="abcde-word">Evolving</div><div class="abcde-desc">Any change in size, shape, color, or new symptom</div></div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- RESOURCES -->
+  <section id="resources" style="margin-bottom: 2.5rem;">
+    <div class="section-header">
+      <div class="section-tag">Getting Help</div>
+      <div class="section-title">Screening and care resources</div>
+      <div class="section-desc">Free and low-cost options for Rhode Islanders seeking skin cancer screening and dermatology access.</div>
+    </div>
+
+    <div class="resource-grid">
+      <a class="resource-card" href="https://www.aad.org/public/tools/find-a-derm" target="_blank" rel="noopener noreferrer">
+        <div class="resource-icon">🏥</div>
+        <div class="resource-title">AAD Find a Dermatologist</div>
+        <div class="resource-desc">Locate board-certified dermatologists in Rhode Island accepting new patients</div>
+      </a>
+      <a class="resource-card" href="https://health.ri.gov/cancer/skin-cancer" target="_blank" rel="noopener noreferrer">
+        <div class="resource-icon">🔗</div>
+        <div class="resource-title">RIDOH Skin Cancer Prevention</div>
+        <div class="resource-desc">Rhode Island Department of Health skin cancer resources, screening events, and free sunscreen programs</div>
+      </a>
+      <a class="resource-card" href="https://www.rifreeClinic.org" target="_blank" rel="noopener noreferrer">
+        <div class="resource-icon">❤️</div>
+        <div class="resource-title">Rhode Island Free Clinic</div>
+        <div class="resource-desc">Free medical care for uninsured Rhode Islanders, including dermatology referral support</div>
+      </a>
+      <a class="resource-card" href="https://statecancerprofiles.cancer.gov/quick-profiles/index.php?statename=rhodeisland" target="_blank" rel="noopener noreferrer">
+        <div class="resource-icon">📊</div>
+        <div class="resource-title">RI Cancer Data</div>
+        <div class="resource-desc">NCI State Cancer Profiles — Rhode Island melanoma incidence and mortality by county</div>
+      </a>
+    </div>
+
+    <div style="background: white; border: 1px solid var(--border); border-radius: var(--radius); padding: 1.25rem 1.5rem; font-size: 0.85rem;">
+      <strong style="color: var(--navy);">When to seek urgent evaluation</strong>
+      <div style="display: flex; flex-wrap: wrap; gap: 8px; margin-top: 0.75rem;">
+        <span class="rec-step"><span class="rec-step-dot"></span>Mole changing rapidly in size, shape, or color</span>
+        <span class="rec-step"><span class="rec-step-dot"></span>Lesion that bleeds without trauma</span>
+        <span class="rec-step"><span class="rec-step-dot"></span>Sore that does not heal over 4 weeks</span>
+        <span class="rec-step"><span class="rec-step-dot"></span>Dark streak under a nail</span>
+        <span class="rec-step"><span class="rec-step-dot"></span>New lesion on palm, sole, or mucosal site</span>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- DOWNLOAD -->
+  <section id="download">
+    <div class="download-section">
+      <h3>Sun Safety Guide — Rhode Island</h3>
+      <p>A free, printable one-page handout for outdoor workers, families, coaches, and community organizations. Share at clinics, schools, parks, and worksites.</p>
+      <button class="download-btn" onclick="generatePDF()">Print or Save Sun Safety Handout</button>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <strong>Rhode Island Sun Safety & Shade Access Resource</strong><br>
+  Created as a free public health service for Rhode Island residents.<br>
+  UV data: <a href="https://open-meteo.com" target="_blank" rel="noopener noreferrer">Open-Meteo API</a> (open source, free) ·
+  Canopy data: <a href="https://dem.ri.gov/urban-forestry" target="_blank" rel="noopener noreferrer">RI DEM Urban Forestry</a> &amp; <a href="https://www.treeequityscore.org" target="_blank" rel="noopener noreferrer">American Forests</a> ·
+  Cancer data: <a href="https://statecancerprofiles.cancer.gov" target="_blank" rel="noopener noreferrer">NCI State Cancer Profiles</a><br><br>
+  <em>This resource is for educational purposes only and does not constitute medical advice. Consult a licensed clinician for personal medical guidance.</em><br><br>
+  Last updated: April 2026
+</footer>
+
+<script>
+  const CITIES = {
+    'Providence':      { lat: 41.8240, lon: -71.4128, canopy: 17, county: 'Providence' },
+    'Pawtucket':       { lat: 41.8787, lon: -71.3867, canopy: 14, county: 'Providence' },
+    'Central Falls':   { lat: 41.8898, lon: -71.3923, canopy: 12, county: 'Providence' },
+    'Cranston':        { lat: 41.7798, lon: -71.4373, canopy: 28, county: 'Providence' },
+    'Woonsocket':      { lat: 41.9982, lon: -71.5148, canopy: 18, county: 'Providence' },
+    'Warwick':         { lat: 41.7001, lon: -71.4162, canopy: 31, county: 'Kent' },
+    'East Providence': { lat: 41.8138, lon: -71.3687, canopy: 22, county: 'Providence' },
+    'Newport':         { lat: 41.4901, lon: -71.3128, canopy: 35, county: 'Newport' },
+    'Westerly':        { lat: 41.3770, lon: -71.8270, canopy: 38, county: 'Washington' },
+    'Block Island':    { lat: 41.1712, lon: -71.5773, canopy: 20, county: 'Washington' },
+  };
+
+  const CANOPY_ALL = [
+    { city: 'Central Falls',   canopy: 12 },
+    { city: 'Pawtucket',       canopy: 14 },
+    { city: 'Providence',      canopy: 17 },
+    { city: 'Woonsocket',      canopy: 18 },
+    { city: 'Block Island',    canopy: 20 },
+    { city: 'East Providence', canopy: 22 },
+    { city: 'Cranston',        canopy: 28 },
+    { city: 'Warwick',         canopy: 31 },
+    { city: 'Newport',         canopy: 35 },
+    { city: 'Westerly',        canopy: 38 },
+  ];
+
+  const COUNTY_DATA = [
+    { county: 'Providence', level: 'Moderate',  note: 'Highest population density; urban heat compounds UV burden' },
+    { county: 'Kent',       level: 'Moderate',  note: 'Mix of suburban and outdoor recreational exposure' },
+    { county: 'Newport',    level: 'Higher',    note: 'Coastal UV reflection from water and sand increases exposure' },
+    { county: 'Washington', level: 'Higher',    note: 'Beach and outdoor recreation common; high seasonal UV exposure' },
+    { county: 'Bristol',    level: 'Moderate',  note: 'Coastal community with moderate outdoor activity profile' },
+  ];
+
+  function shadeClass(canopy) {
+    if (canopy < 15) return { cls: 'shade-vlow', label: 'Very Low' };
+    if (canopy < 22) return { cls: 'shade-low',  label: 'Low' };
+    if (canopy < 32) return { cls: 'shade-mod',  label: 'Moderate' };
+    return { cls: 'shade-high', label: 'Higher' };
+  }
+
+  function canopyColor(canopy) {
+    if (canopy < 15) return '#E05A3A';
+    if (canopy < 22) return '#D4882A';
+    if (canopy < 32) return '#9E7B00';
+    return '#2A7D6B';
+  }
+
+  function uvInfo(uv) {
+    if (uv <= 2)  return { cls: 'uv-low',      label: 'Low',       color: '#2E7D32' };
+    if (uv <= 5)  return { cls: 'uv-moderate', label: 'Moderate',  color: '#9E7B00' };
+    if (uv <= 7)  return { cls: 'uv-high',     label: 'High',      color: '#BF5600' };
+    if (uv <= 10) return { cls: 'uv-veryhigh', label: 'Very High', color: '#C62828' };
+    return           { cls: 'uv-extreme',  label: 'Extreme',   color: '#7B1FA2' };
+  }
+
+  function uvRecommendations(uv) {
+    const base = ['SPF 30+ sunscreen', 'UV-blocking sunglasses'];
+    if (uv <= 2) return ['Minimal protection needed', ...base];
+    if (uv <= 5) return [...base, 'Wide-brim hat outdoors', 'Reapply every 2 hours'];
+    if (uv <= 7) return [...base, 'Wide-brim hat', 'Seek shade 10am–4pm', 'Reapply every 2 hours', 'UPF clothing recommended'];
+    return [...base, 'Wide-brim hat', 'Avoid prolonged midday sun', 'Prioritize shade', 'UPF 50+ clothing', 'Extra caution near water or sand'];
+  }
+
+  function buildShadeTable() {
+    const tbody = document.getElementById('shadeTableBody');
+    tbody.innerHTML = CANOPY_ALL.map(row => {
+      const s = shadeClass(row.canopy);
+      const color = canopyColor(row.canopy);
+      return `<tr>
+        <td><strong>${row.city}</strong></td>
+        <td>
+          <div class="canopy-bar-wrap">
+            <div class="canopy-bar-bg"><div class="canopy-bar-fill" style="width:${row.canopy * 2}%;background:${color}"></div></div>
+            <span class="canopy-pct">${row.canopy}%</span>
+          </div>
+        </td>
+        <td>Approx. ${row.canopy}% canopy estimate</td>
+        <td><span class="shade-badge ${s.cls}">${s.label}</span></td>
+      </tr>`;
+    }).join('');
+  }
+
+  function buildCountyGrid() {
+    const grid = document.getElementById('countyGrid');
+    const levelColor = { 'Moderate': '#D4882A', 'Higher': '#E05A3A' };
+    grid.innerHTML = COUNTY_DATA.map(d => `
+      <div class="county-card">
+        <div class="county-name">${d.county} County</div>
+        <div style="font-size:1rem; font-weight:500; color:${levelColor[d.level]}; margin: 6px 0 4px;">${d.level} UV risk profile</div>
+        <div class="county-rate-label" style="font-size:0.78rem; line-height:1.5;">${d.note}</div>
+        <div class="county-bar" style="margin-top:10px;"><div class="county-bar-fill" style="width:${d.level === 'Higher' ? 80 : 55}%; background:${levelColor[d.level]}"></div></div>
+        <div style="font-size:0.7rem; color:var(--text-muted); margin-top:6px;">Qualitative public health summary. For incidence data, see NCI State Cancer Profiles.</div>
+      </div>
+    `).join('');
+  }
+
+  async function selectCity(name) {
+    document.querySelectorAll('.city-btn').forEach(b => b.classList.toggle('active', b.textContent === name));
+    const city = CITIES[name];
+    const area = document.getElementById('resultArea');
+    area.innerHTML = `<div class="result-card"><div class="loading-state"><div class="spinner"></div><p>Fetching today's UV data for ${name}…</p></div></div>`;
+
+    try {
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${city.lat}&longitude=${city.lon}&daily=uv_index_max&timezone=America%2FNew_York&forecast_days=1`;
+      const res = await fetch(url);
+      const data = await res.json();
+      const uv = Math.round(data.daily.uv_index_max[0]);
+      renderResult(name, city, uv);
+    } catch(e) {
+      area.innerHTML = `<div class="result-card"><div class="loading-state"><p style="color:var(--coral)">Could not fetch live UV data. Please try again.</p></div></div>`;
+    }
+  }
+
+  function renderResult(name, city, uv) {
+    const info = uvInfo(uv);
+    const shade = shadeClass(city.canopy);
+    const recs = uvRecommendations(uv);
+    const equityMsg = city.canopy < 20
+      ? `${name} has among the lowest tree canopy coverage in Rhode Island (${city.canopy}%). Residents face higher outdoor UV and heat burden — especially outdoor workers, children, and elderly individuals.`
+      : city.canopy < 30
+      ? `${name} has moderate tree canopy (${city.canopy}%). Shade is available in some areas, but sun protection remains important during peak UV hours.`
+      : `${name} has relatively higher tree canopy (${city.canopy}%), offering better natural shade access. Sun protection is still recommended on high UV days.`;
+
+    document.getElementById('resultArea').innerHTML = `
+      <div class="result-card">
+        <div class="result-header">
+          <div>
+            <div class="result-location">Today's Sun Safety Snapshot</div>
+            <div class="result-title">${name}</div>
+          </div>
+          <div class="uv-badge ${info.cls}">
+            <span class="uv-num">${uv}</span>
+            <span class="uv-label">${info.label}</span>
+          </div>
+        </div>
+        <div class="result-grid">
+          <div class="result-metric">
+            <div class="metric-label">UV Index</div>
+            <div class="metric-value" style="color:${info.color}">${uv} — ${info.label}</div>
+            <div class="metric-sub">Today's forecast maximum</div>
+          </div>
+          <div class="result-metric">
+            <div class="metric-label">Shade Access</div>
+            <div class="metric-value">${shade.label}</div>
+            <div class="metric-sub">${city.canopy}% tree canopy coverage</div>
+          </div>
+          <div class="result-metric">
+            <div class="metric-label">County</div>
+            <div class="metric-value">${city.county}</div>
+            <div class="metric-sub">See sun exposure context below</div>
+          </div>
+        </div>
+        <div class="result-recommendation">
+          <div class="rec-title">Your sun safety plan for today</div>
+          <div class="rec-steps">
+            ${recs.map(r => `<span class="rec-step"><span class="rec-step-dot"></span>${r}</span>`).join('')}
+          </div>
+        </div>
+        <div class="equity-note">
+          <span>🌳</span>
+          <span>${equityMsg}</span>
+        </div>
+      </div>`;
+  }
+
+  function generatePDF() {
+    const win = window.open('', '_blank');
+    win.document.write(`<!DOCTYPE html><html><head><title>RI Sun Safety Guide</title>
+    <style>
+      body { font-family: Georgia, serif; max-width: 700px; margin: 40px auto; color: #1A2744; line-height: 1.6; }
+      h1 { font-size: 2rem; color: #E05A3A; margin-bottom: 0.25rem; }
+      h2 { font-size: 1.1rem; color: #1A2744; border-bottom: 2px solid #E05A3A; padding-bottom: 0.3rem; margin-top: 1.5rem; }
+      .tag { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: #5A6480; }
+      ul { padding-left: 1.25rem; }
+      li { margin-bottom: 0.4rem; font-size: 0.9rem; }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.75rem; }
+      .box { background: #F5F0E8; padding: 0.75rem 1rem; border-radius: 8px; font-size: 0.85rem; }
+      .footer { margin-top: 2rem; font-size: 0.72rem; color: #5A6480; border-top: 1px solid #ddd; padding-top: 1rem; }
+    </style></head><body>
+    <div class="tag">Free Public Health Resource · Rhode Island</div>
+    <h1>Rhode Island Sun Safety Guide</h1>
+    <p style="font-size:0.9rem;color:#5A6480">For outdoor workers, families, coaches, and community members. Not a substitute for medical advice.</p>
+
+    <h2>Daily Sun Protection</h2>
+    <div class="grid">
+      <div class="box"><strong>UV Index 1–2 (Low)</strong><br>Minimal protection needed for most activities.</div>
+      <div class="box"><strong>UV Index 3–5 (Moderate)</strong><br>Sunscreen SPF 30+, hat, and sunglasses recommended.</div>
+      <div class="box"><strong>UV Index 6–7 (High)</strong><br>Reduce midday sun. Sunscreen, hat, shade, UPF clothing.</div>
+      <div class="box"><strong>UV Index 8+ (Very High / Extreme)</strong><br>Avoid prolonged midday sun. Prioritize shade and protective clothing.</div>
+    </div>
+
+    <h2>Outdoor Workers & Athletes</h2>
+    <ul>
+      <li>Apply broad-spectrum SPF 30+ sunscreen before outdoor work; reapply every 2 hours</li>
+      <li>Wear wide-brim hats and UPF 50+ clothing when possible</li>
+      <li>Schedule shade breaks 10am–4pm during high UV periods</li>
+      <li>Use wrap-around UV-protective sunglasses</li>
+      <li>Seek shade near water, sand, and pavement — surfaces reflect UV and increase exposure</li>
+      <li>Hard hat neck shades recommended for construction and outdoor laborers</li>
+    </ul>
+
+    <h2>Rhode Island Shade Access</h2>
+    <p style="font-size:0.85rem">Communities with lower tree canopy face higher UV and heat burden. Central Falls (12%), Pawtucket (14%), and Providence (17%) have the lowest canopy coverage in RI. Residents in these communities should prioritize personal sun protection.</p>
+
+    <h2>Know Your ABCDEs — Warning Signs</h2>
+    <ul>
+      <li><strong>A — Asymmetry:</strong> One half does not match the other</li>
+      <li><strong>B — Border:</strong> Irregular, ragged, or blurred edges</li>
+      <li><strong>C — Color:</strong> Multiple shades of brown, black, red, white, or blue</li>
+      <li><strong>D — Diameter:</strong> Larger than a pencil eraser (~6mm)</li>
+      <li><strong>E — Evolving:</strong> Any change in size, shape, color, or new symptom</li>
+    </ul>
+
+    <h2>Skin of Color</h2>
+    <p style="font-size:0.85rem">Skin cancer can occur in all skin tones. In darker skin, melanoma may be diagnosed at a later stage and can appear on palms, soles, nails, or mucosal sites. Any new, changing, bleeding, or nonhealing lesion warrants evaluation.</p>
+
+    <h2>Get Screened</h2>
+    <ul>
+      <li>Talk to your primary care provider about annual skin checks</li>
+      <li>Rhode Island Free Clinic provides care for uninsured residents</li>
+      <li>RIDOH Skin Cancer resources: health.ri.gov/cancer/skin-cancer</li>
+      <li>AAD Find-a-Dermatologist: aad.org</li>
+    </ul>
+
+    <div class="footer">Rhode Island Sun Safety & Shade Access Resource · Free public health tool · For educational purposes only · UV data: Open-Meteo · Canopy data: RI DEM &amp; American Forests · Cancer data: NCI State Cancer Profiles</div>
+    </body></html>`);
+    win.document.close();
+    setTimeout(() => win.print(), 500);
+  }
+
+  buildShadeTable();
+  buildCountyGrid();
+</script>
+</body>
+</html>
